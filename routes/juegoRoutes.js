@@ -1,0 +1,11 @@
+const express = require('express');
+const router = express.Router();
+const juegoController = require('../BackEnd/controllers/juegoController');
+
+router.post('/', juegoController.crearJuego);
+router.get('/', juegoController.obtenerJuego);
+router.get('/:id', juegoController.obtenerJuegoPorId);
+router.put('/:id', juegoController.actualizarJuego);
+router.delete('/:id', juegoController.eliminarJuego);
+
+module.exports = router;
