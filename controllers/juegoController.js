@@ -1,4 +1,4 @@
-const Juego = require('../models/Juego');
+const Juego = require('../BackEnd/models/Juego');
 
 //LISTA Y SIGNIFICADO DE LOS ERRORES
 

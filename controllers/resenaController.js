@@ -1,4 +1,4 @@
-const Resena = require('../models/Resena');
+const Resena = require('../BackEnd/models/Resena');
 
 //C = CREAR NUEVAS RESEÑAS
 exports.crearResena = async (req, res) => {
