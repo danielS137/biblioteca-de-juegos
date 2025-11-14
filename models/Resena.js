@@ -6,21 +6,23 @@ const ResenaSchema = new mongoose.Schema({
     juego:{
         type: Schema.Types.ObjectId,
         ref: 'Juego',
-        required: true
+        required: [true, 'El juego es obligatorio']
     },
     puntuacion: {
         type: Number, 
-        required: true,
-        min: 1,
-        max: 5
+        required: [true, 'La puntuación es obligatoria'],
+        min: [1, 'La puntuación mínima es 1'],
+        max: [5, 'La puntuación máxima es 5']
     },
     texto: {
         type: String,
-        required: [true, 'el texto de la reseña es obligatorio']
+        required: [true, 'El texto de la reseña es obligatorio'],
+        trim: true
     },
     autor: {
         type: String,
-        default: 'usuario anonimo'
+        default: 'Anónimo',
+        trim: true
     }
 }, {
     timestamps: true

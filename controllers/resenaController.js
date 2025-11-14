@@ -33,7 +33,7 @@ exports.crearResena = async (req, res) => {
             juego: req.body.juego,
             puntuacion: puntuacion,
             texto: req.body.texto,
-            autor: req.body.autor || 'usuario anonimo'
+            autor: req.body.autor || 'Anónimo'
         };
         
         console.log('📋 Datos procesados:', datosResena);
@@ -71,7 +71,10 @@ exports.obtenerResena = async (req, res) => {
     try {
         // FILTRA LAS RESEÑAS POR ID DEL JUEGO ENVIADO A LA QUERY
         const filtro = req.query.juegoId ? { juego: req.query.juegoId }: {};
-        const resenas = await Resena.find(filtro).populate('juego', 'nombre');
+        
+        // NO USAR POPULATE - Dejar el ID del juego tal cual
+        const resenas = await Resena.find(filtro).sort({ createdAt: -1 });
+        
         console.log('✅ Reseñas encontradas:', resenas.length);
         res.status(200).json(resenas);
     } catch (error) {
@@ -86,7 +89,9 @@ exports.obtenerResena = async (req, res) => {
 //R = OBTENER RESEÑAS POR ID
 exports.obtenerResenaPorId = async (req, res) => {
     try {
-        const resena = await Resena.findById(req.params.id).populate('juego', 'nombre')
+        // NO USAR POPULATE
+        const resena = await Resena.findById(req.params.id);
+        
         if (!resena){
             return res.status(404).json ({ msg: 'Reseña no encontrada' })
         }
@@ -100,20 +105,46 @@ exports.obtenerResenaPorId = async (req, res) => {
 //U = ACTUALIZAR RESEÑAS 
 exports.actualizarResena = async (req, res) => {
     try {
+        // ✅ Validar puntuación si se está actualizando
+        if (req.body.puntuacion) {
+            const puntuacion = Number(req.body.puntuacion);
+            if (isNaN(puntuacion) || puntuacion < 1 || puntuacion > 5) {
+                return res.status(400).json({ 
+                    error: 'La puntuación debe ser un número entre 1 y 5'
+                });
+            }
+            req.body.puntuacion = puntuacion;
+        }
+
         const resenaActualizada = await Resena.findByIdAndUpdate(
             req.params.id,
             req.body,
             {
-            new: true, 
-            runValidators: true
-        })
+                new: true, 
+                runValidators: true
+            }
+        );
+        
         if(!resenaActualizada){
             return res.status(404).json ({ msg: 'No se ha podido actualizar su reseña'})
         }
+        
         console.log('✅ Reseña actualizada:', resenaActualizada._id);
         res.status(200).json(resenaActualizada)
     } catch (error){
         console.error('❌ Error al actualizar reseña:', error.message);
+        
+        if (error.name === 'ValidationError') {
+            const errores = Object.keys(error.errors).map(key => ({
+                campo: key,
+                mensaje: error.errors[key].message
+            }));
+            return res.status(400).json({ 
+                error: 'Error de validación', 
+                errores
+            });
+        }
+        
         res.status(500).json({
             error: 'error al actualizar su reseña',
             details: error.message
