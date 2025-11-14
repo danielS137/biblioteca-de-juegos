@@ -5,7 +5,7 @@ const ResenaSchema = new mongoose.Schema({
 
     juego:{
         type: Schema.Types.ObjectId,
-        ref: 'juego',
+        ref: 'Juego',
         required: true
     },
     puntuacion: {

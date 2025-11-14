@@ -2,17 +2,38 @@ const Resena = require('../models/Resena');
 
 //C = CREAR NUEVAS RESEÑAS
 exports.crearResena = async (req, res) => {
-    try{
-        const nuevaResena = new Resena(req.body);
-        await nuevaResena.save();
-        res.status(201).json(nuevaResena);
-    } catch (error) {
-        res.status(400).json({ 
-            error: 'error al crear la reseña', 
-            details: error.message
-        })
+  console.log("📥 Reseña recibida desde el frontend:", req.body);
+
+  try {
+    // Desestructuramos lo que venga del frontend
+    const { juegoId, puntuacion, texto, autor } = req.body;
+
+    // Validación manual para evitar errores 400
+    if (!juegoId || !puntuacion || !texto) {
+      return res.status(400).json({
+        error: 'Faltan datos requeridos: juegoId, puntuacion o texto',
+      });
     }
-}
+
+    // Creamos la reseña usando el campo correcto del modelo
+    const nuevaResena = new Resena({
+      juego: juegoId, // 👈 aquí está la diferencia clave
+      puntuacion,
+      texto,
+      autor: autor || 'usuario anonimo',
+    });
+
+    await nuevaResena.save();
+    console.log("✅ Reseña guardada:", nuevaResena);
+    res.status(201).json(nuevaResena);
+  } catch (error) {
+    console.error("❌ Error al crear la reseña:", error.message);
+    res.status(400).json({
+      error: 'Error al crear la reseña',
+      details: error.message,
+    });
+  }
+};
 
 //R = OBTENER RESEÑAS
 exports.obtenerResena = async (req, res) => {
